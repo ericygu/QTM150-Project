@@ -44,7 +44,7 @@ With everything going on in the world right now in terms of discrimination based
 
 ### 7 (2 points). 
 
-Produce a simple plot showing the overall relationship between your two variables by placing the explanatory variable on the x-axis and the response variable on the y-axis. Be sure to label both axes and include a title for the plot by using appropriate arguments. 
+# Produce a simple plot showing the overall relationship between your two variables by placing the explanatory variable on the x-axis and the response variable on the y-axis. Be sure to label both axes and include a title for the plot by using appropriate arguments. 
 
 MIDDLE.EAST <- DOHM0 %>%
   filter(CUISINE.DESCRIPTION == "Afghan" |
@@ -75,8 +75,7 @@ SOUTH.AMERICAN <- DOHM0 %>%
   summarise(AVG.SCORE=mean(SCORE))
 
 EUROPEAN <- DOHM0 %>%
-  filter(CUISINE.DESCRIPTION == "Afghan" |
-           CUISINE.DESCRIPTION =="Czech"|
+  filter(CUISINE.DESCRIPTION =="Czech"|
            CUISINE.DESCRIPTION =="Eastern European"|
            CUISINE.DESCRIPTION =="English"|
            CUISINE.DESCRIPTION =="French"|
@@ -90,31 +89,31 @@ EUROPEAN <- DOHM0 %>%
            CUISINE.DESCRIPTION =="Russian"|
            CUISINE.DESCRIPTION =="Scandinavian"|
            CUISINE.DESCRIPTION =="Spanish") %>%
-  summarise(AVG.INCOME=mean(SCORE))
+  summarise(AVG.SCORE=mean(SCORE))
 
 SOUTH.ASIAN <- DOHM0 %>%
   filter(CUISINE.DESCRIPTION == "Bangladeshi"|
            CUISINE.DESCRIPTION =="Indian"|
            CUISINE.DESCRIPTION =="Pakistani") %>%
-  summarise(AVG.INCOME=mean(SCORE))
+  summarise(AVG.SCORE=mean(SCORE))
 
 EAST.ASIAN <- DOHM0 %>%
   filter(CUISINE.DESCRIPTION =="Chinese"|
            CUISINE.DESCRIPTION =="Japanese"|
            CUISINE.DESCRIPTION =="Korean") %>%
-  summarise(AVG.INCOME=mean(SCORE))
+  summarise(AVG.SCORE=mean(SCORE))
 
 SOUTHEAST.ASIAN <- DOHM0 %>%
   filter(CUISINE.DESCRIPTION =="Filipino"|
            CUISINE.DESCRIPTION =="Indonesian"|
            CUISINE.DESCRIPTION =="Thai"|
            CUISINE.DESCRIPTION =="Vietnamese/Cambodian/Malaysia") %>%
-  summarise(AVG.INCOME=mean(SCORE))
+  summarise(AVG.SCORE=mean(SCORE))
 
 CENTRAL.AMERICA <- DOHM0 %>%
   filter(CUISINE.DESCRIPTION == "Caribbean"|
            CUISINE.DESCRIPTION == "Mexican") %>%
-  summarise(AVG.INCOME=mean(SCORE))
+  summarise(AVG.SCORE=mean(SCORE))
 
 AUSTRALIAN <- DOHM0 %>%
   filter(CUISINE.DESCRIPTION == "Australian") %>%
@@ -134,7 +133,7 @@ ggplot(GLOBAL.SCORES, aes(GLOBAL.NAMES, AVG.GLOBAL.SCORES)) +
 
 ### 8 (2 points). 
 
-In plain English, describe the pattern (if any) between the explanatory and the response variables observed in the plot. Did it match your expectation? Why or why not? Explain the outcome.
+# In plain English, describe the pattern (if any) between the explanatory and the response variables observed in the plot. Did it match your expectation? Why or why not? Explain the outcome.
 
 The average score for most cuisines was around 21 - 24. However, the average score for American restaurants was substantially lower (better in the context of the data) than the average for other countries at about 19. The average score for African restaurants seemed substantially higher (worse) than the average for other countries at about 27.
 
