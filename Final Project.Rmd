@@ -46,9 +46,100 @@ With everything going on in the world right now in terms of discrimination based
 
 Produce a simple plot showing the overall relationship between your two variables by placing the explanatory variable on the x-axis and the response variable on the y-axis. Be sure to label both axes and include a title for the plot by using appropriate arguments. 
 
+MIDDLE.EAST <- DOHM0 %>%
+  filter(CUISINE.DESCRIPTION == "Afghan" |
+           CUISINE.DESCRIPTION == "Armenian"|
+           CUISINE.DESCRIPTION =="Egyptian"|
+           CUISINE.DESCRIPTION =="Iranian"|
+           CUISINE.DESCRIPTION =="Middle Eastern" |
+           CUISINE.DESCRIPTION == "Turkish") %>%
+  summarise(AVG.SCORE=mean(SCORE))
+
+AFRICAN <- DOHM0 %>% 
+  filter(CUISINE.DESCRIPTION == "African" |
+           CUISINE.DESCRIPTION =="Ethiopian"|
+           CUISINE.DESCRIPTION =="Moroccan") %>%
+  summarise(AVG.SCORE=mean(SCORE))
+
+AMERICAN <- DOHM0 %>%
+  filter(CUISINE.DESCRIPTION == "American" |
+           CUISINE.DESCRIPTION == "Cajun" |
+           CUISINE.DESCRIPTION == "Creole") %>%
+  summarise(AVG.SCORE=mean(SCORE))
+
+SOUTH.AMERICAN <- DOHM0 %>%
+  filter(CUISINE.DESCRIPTION =="Brazilian"|
+           CUISINE.DESCRIPTION =="Chilean"|
+           CUISINE.DESCRIPTION =="Latin (Cuban, Dominican, Puerto Rican, South & Central American)"|
+           CUISINE.DESCRIPTION == "Peruvian") %>%
+  summarise(AVG.SCORE=mean(SCORE))
+
+EUROPEAN <- DOHM0 %>%
+  filter(CUISINE.DESCRIPTION == "Afghan" |
+           CUISINE.DESCRIPTION =="Czech"|
+           CUISINE.DESCRIPTION =="Eastern European"|
+           CUISINE.DESCRIPTION =="English"|
+           CUISINE.DESCRIPTION =="French"|
+           CUISINE.DESCRIPTION =="German"|
+           CUISINE.DESCRIPTION =="Greek"|
+           CUISINE.DESCRIPTION =="Irish"|
+           CUISINE.DESCRIPTION =="Italian"|
+           CUISINE.DESCRIPTION =="Mediterranean"|
+           CUISINE.DESCRIPTION =="Polish"|
+           CUISINE.DESCRIPTION =="Portuguese"|
+           CUISINE.DESCRIPTION =="Russian"|
+           CUISINE.DESCRIPTION =="Scandinavian"|
+           CUISINE.DESCRIPTION =="Spanish") %>%
+  summarise(AVG.INCOME=mean(SCORE))
+
+SOUTH.ASIAN <- DOHM0 %>%
+  filter(CUISINE.DESCRIPTION == "Bangladeshi"|
+           CUISINE.DESCRIPTION =="Indian"|
+           CUISINE.DESCRIPTION =="Pakistani") %>%
+  summarise(AVG.INCOME=mean(SCORE))
+
+EAST.ASIAN <- DOHM0 %>%
+  filter(CUISINE.DESCRIPTION =="Chinese"|
+           CUISINE.DESCRIPTION =="Japanese"|
+           CUISINE.DESCRIPTION =="Korean") %>%
+  summarise(AVG.INCOME=mean(SCORE))
+
+SOUTHEAST.ASIAN <- DOHM0 %>%
+  filter(CUISINE.DESCRIPTION =="Filipino"|
+           CUISINE.DESCRIPTION =="Indonesian"|
+           CUISINE.DESCRIPTION =="Thai"|
+           CUISINE.DESCRIPTION =="Vietnamese/Cambodian/Malaysia") %>%
+  summarise(AVG.INCOME=mean(SCORE))
+
+CENTRAL.AMERICA <- DOHM0 %>%
+  filter(CUISINE.DESCRIPTION == "Caribbean"|
+           CUISINE.DESCRIPTION == "Mexican") %>%
+  summarise(AVG.INCOME=mean(SCORE))
+
+AUSTRALIAN <- DOHM0 %>%
+  filter(CUISINE.DESCRIPTION == "Australian") %>%
+  summarise(AVG.SCORE=mean(SCORE))
+
+AVG.GLOBAL.SCORES <- c(MIDDLE.EAST[,1], AFRICAN[,1], AMERICAN[,1], SOUTH.AMERICAN[,1], EUROPEAN[,1], SOUTH.ASIAN[,1], EAST.ASIAN[,1], SOUTHEAST.ASIAN[,1], CENTRAL.AMERICA[,1], AUSTRALIAN[,1])
+
+GLOBAL.NAMES <- c("MIDDLE EAST", "AFRICAN", "AMERICAN", "SOUTH AMERICAN", "EUROPEAN", "SOUTH ASIAN", "EAST ASIAN", "SOUTHEAST ASIAN", "CENTRAL AMERICAN", "AUSTRALIAN")
+
+GLOBAL.SCORES <- data.frame(GLOBAL.NAMES, AVG.GLOBAL.SCORES)
+
+ggplot(GLOBAL.SCORES, aes(GLOBAL.NAMES, AVG.GLOBAL.SCORES)) +
+  xlab("Cuisine region") +
+  ylab("Average Score") +
+  labs(title = "Relationship between global region of cuisine and average score") +
+  geom_point()
+
 ### 8 (2 points). 
 
 In plain English, describe the pattern (if any) between the explanatory and the response variables observed in the plot. Did it match your expectation? Why or why not? Explain the outcome.
+
+The average score for most cuisines was around 21 - 24. However, the average score for American restaurants was substantially lower (better in the context of the data) than the average for other countries at about 19. The average score for African restaurants seemed substantially higher (worse) than the average for other countries at about 27.
+
+This pattern matches our expectations because American restaurants received much better scores than any other type of cuisine, which indicates that the inspectors were potentially biased towards cuisines that they were familiar with. Additionally, the fact that African restaurants received worse scores than any other type of cuisine also points to a racial bias in ratings.
+
 
 
 ## Part B (17 points). Data Manipulation & Visualization and Conclusion
