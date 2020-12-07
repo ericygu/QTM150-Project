@@ -1,0 +1,494 @@
+---
+title: "QTM 150 Final Project Group 1C"
+author: "Anjanay Nangia, Eric Gu, Jai Arora, Kristina Trifonova, & Sergio Eraso (aka Group We-R-Studio-us)"
+date: "12/4/2020"
+output: html_document
+---
+
+```{r}
+
+r = getOption("repos")
+r["CRAN"] = "http://cran.us.r-project.org"
+options(repos = r)
+
+# Install ggplot2, ggthemes, and dplyr packages
+
+install.packages("ggplot2")
+install.packages("ggthemes")
+install.packages("dplyr")
+
+# Load ggplot2, ggthemes, and dplyr packages
+
+library(ggplot2)
+library(ggthemes)
+library(dplyr)
+
+# Import the "DOHMH_NYC" dataset
+
+DOHM1 <- read.csv("DOHMH_NYC.csv")
+```
+
+### PART A
+
+
+### Question 1
+
+```{r}
+
+# We will be analyzing the Department of Health and Mental Hygiene New York City Restaurant Inspection Results (DOHMH_NYC), which is a dataset that covers nearly thirty years worth of information on the health and safety quality of restaurants and cafes across New York City through the use of health violation assessments. After careful observation of the variables within the dataset, we have chosen to examine the variables score and cuisine description, which represent the health inspection scores given to New York restaurants and cafes and the different cuisines the New York restaurants serve, respectively. We are analyzing these two variables to determine any potential relationship between them and reveal any potential bias in the manner in which health inspection scores are assigned to restaurants serving different cuisines within New York. 
+```
+
+### Question 2
+
+```{r}
+# In order to quantify any potential discrimination among restaurants and cafes of different cuisines in New York, the numerical response variable that we have chosen to use is score, which is the health inspection scores given to restaurants and cafes. The variable score assigns numerical values based on the health and safety of restaurants, and the higher the score, the less sanitary the restaurant conditions are. The lower the score, the more safe and sanitary the restaurant conditions are. By choosing score as our numerical response variable, we hope to ultimately assess any potential cultural biases within the department of health and observe how health inspection scores vary by the cuisine and location of restaurants within New York. In short, we chose to use score as the numerical response variable because it is the most informative numerical variable provided within the dataset, and it directly correlates to how safe and healthy the Department of Health and Mental Hygiene deems a restaurant. There is no better numerical variable than score because it illustrates how a restaurant places in comparison to other restaurants in terms of health and safety.
+
+
+# Print summary statistics for variable "SCORE"
+
+summary(DOHM1$SCORE)
+
+# Density plot of variable "SCORE"
+
+ggplot(DOHM1,aes(SCORE))+
+  geom_density() +
+  labs(x="Score", y="Proportion of Restaurants", title="Health Inspection Scores Given To New York Restaurants & Cafes")
+```
+
+
+### Question 3
+
+```{r}
+# Something that we observed through the density plot we graphed was that there are some restaurants that were given scores within the negative range, which is erroneous because the scale for health inspection scores begins at zero, meaning that the lowest score a restaurant can earn for a health inspection is a zero. A negative score does not have any meaning within the context of the data, which is why we decided to exclude any restaurants with a score of less than zero. A score of zero would mean that there were no health violations on the part of a restaurant; whereas, a score of less than zero is not possible to earn. 
+
+# Change all negative health inspection scores from the variable "SCORE" and assign them values of "NA" instead
+
+DOHM1$SCORE1 <- DOHM1$SCORE
+DOHM1$SCORE1[DOHM1$SCORE < 0] <- NA
+
+# Print summary statistics for new variable 'SCORE1"
+
+summary(DOHM1$SCORE1)
+
+# Print summary statistics for all variables within the dataset
+
+summary(DOHM1)
+```
+
+### Question 4
+
+```{r}
+# The main explanatory variable that we chose to explain the results of our response variable, score, is cuisine description, which is a categorical variable. The variable cuisine description describes the cultural background or the type of food that a restaurant serves. Our main research goal is to uncover whether the Department of Health and Mental Hygiene gives disproportionately worse (higher) scores to restaurants serving food from any culture other than American food and whether they give restaurants serving American food disproportionately better (lower) scores. The higher a score is, the worse it is and vice versa. We are especially interested in determining whether the health inspection scores that are given to different restaurants in New York are biased by the cultural, racial, or ethnic origin of the food that a restaurant serves. Since discrimination against minority groups is rampant in America, we are attempting to determine whether food from different cultural backgrounds is also discriminated against in terms its quality and safety by looking at the health inspection scores given by the Department of Health and Mental Hygeine. In other words, we are trying to see if restaurants serving food from non-American cultural backgrounds are scored higher (worse) in terms of health and safety conditions of the food. 
+
+# Check the class of the variable "CUISINE.DESCRIPTION"
+
+class(DOHM1$CUISINE.DESCRIPTION)
+
+# Turn the variable "CUISINE.DESCRIPTION" from a character to a factor
+
+DOHM1$CUISINE.DESCRIPTION <- as.factor(DOHM1$CUISINE.DESCRIPTION)
+
+# Print summary statistics for variable "CUISINE.DESCRIPTION"
+
+summary(DOHM1$CUISINE.DESCRIPTION)
+
+# Make a frequency plot of restaurants of different cuisines in New York 
+
+CUISINE.FREQUENCY <- DOHM1 %>%
+  select(CUISINE.DESCRIPTION) %>%
+  group_by(CUISINE.DESCRIPTION) %>%
+  summarise(count=n())
+
+ggplot(CUISINE.FREQUENCY, aes(x=CUISINE.DESCRIPTION, y=count)) +
+         geom_col() +
+         labs(title="Frequencies of Restaurants of Different Cuisines in New York", x="Cuisine Type", y="Frequency")
+```
+
+### Question 5
+
+```{r}
+# Our research question aims to address and examine for potential biases related to the cultural and ethnic origin of food served by restaurants in New York. However, there are some observations within the dataset that are irrelevant to answering our research question because they have no connection to a certain cultural background such as the observations listed as “Bottled beverages, including water, sodas, juices, etc” within the variable “cuisine.description.” We decided to change observations such as these that are not related to any particular cultural background or specific global region and assign them a value of “NA” instead. All other observations did not warrant removal or change because they were cuisines with specific cultural backgrounds and were deemed useful in answering our research question. 
+
+# Create a new variable to only include cuisines that we are interested in analyzing by excluding cuisines/foods that are not specific to a particular culture since they would be irrelevant to answering our research question of whether there is cultural bias in how health inspection scores are given to restaurants
+
+DOHM1$CUISINE.DESCRIPTION1 <- DOHM1$CUISINE.DESCRIPTION
+
+DOHM1$CUISINE.DESCRIPTION1[DOHM1$CUISINE.DESCRIPTION != "Afghan" &
+                             DOHM1$CUISINE.DESCRIPTION != "African" &
+                             DOHM1$CUISINE.DESCRIPTION != "American" &
+                             DOHM1$CUISINE.DESCRIPTION != "Armenian" &
+                             DOHM1$CUISINE.DESCRIPTION != "Australian" &
+                             DOHM1$CUISINE.DESCRIPTION != "Bangladeshi"&
+                             DOHM1$CUISINE.DESCRIPTION !="Brazilian"&
+                             DOHM1$CUISINE.DESCRIPTION !="Cajun"&
+                             DOHM1$CUISINE.DESCRIPTION !="Caribbean"&
+                             DOHM1$CUISINE.DESCRIPTION !="Chilean"&
+                             DOHM1$CUISINE.DESCRIPTION !="Chinese"&
+                             DOHM1$CUISINE.DESCRIPTION !="Creole"&
+                             DOHM1$CUISINE.DESCRIPTION !="Czech"&
+                             DOHM1$CUISINE.DESCRIPTION !="Eastern European"&
+                             DOHM1$CUISINE.DESCRIPTION !="Egyptian"&
+                             DOHM1$CUISINE.DESCRIPTION !="English"&DOHM1$CUISINE.DESCRIPTION !="Ethiopian"&
+                             DOHM1$CUISINE.DESCRIPTION !="Filipino"&
+                             DOHM1$CUISINE.DESCRIPTION !="French"&
+                             DOHM1$CUISINE.DESCRIPTION !="German"&
+                             DOHM1$CUISINE.DESCRIPTION !="Greek"&
+                             DOHM1$CUISINE.DESCRIPTION !="Indian"&
+                             DOHM1$CUISINE.DESCRIPTION !="Indonesian"&
+                             DOHM1$CUISINE.DESCRIPTION !="Iranian"&
+                             DOHM1$CUISINE.DESCRIPTION !="Irish"&
+                             DOHM1$CUISINE.DESCRIPTION !="Italian"&
+                             DOHM1$CUISINE.DESCRIPTION !="Japanese"&
+                             DOHM1$CUISINE.DESCRIPTION !="Korean"&
+                             DOHM1$CUISINE.DESCRIPTION !="Latin (Cuban, Dominican, Puerto Rican, South & Central American)"&
+                             DOHM1$CUISINE.DESCRIPTION !="Mediterranean"&
+                             DOHM1$CUISINE.DESCRIPTION !="Mexican"&
+                             DOHM1$CUISINE.DESCRIPTION !="Middle Eastern"&
+                             DOHM1$CUISINE.DESCRIPTION !="Moroccan"&
+                             DOHM1$CUISINE.DESCRIPTION !="Pakistani"&
+                             DOHM1$CUISINE.DESCRIPTION !="Peruvian"&
+                             DOHM1$CUISINE.DESCRIPTION !="Polish"&
+                             DOHM1$CUISINE.DESCRIPTION !="Portuguese"&
+                             DOHM1$CUISINE.DESCRIPTION !="Russian"&
+                             DOHM1$CUISINE.DESCRIPTION !="Scandinavian"&
+                             DOHM1$CUISINE.DESCRIPTION !="Spanish"&
+                             DOHM1$CUISINE.DESCRIPTION !="Thai"&
+                             DOHM1$CUISINE.DESCRIPTION !="Turkish"&
+                             DOHM1$CUISINE.DESCRIPTION !="Vietnamese/Cambodian/Malaysia"] <- NA
+
+# Print summary statistics for variable "CUISINE.DESCRIPTION1"
+
+summary(DOHM1$CUISINE.DESCRIPTION1)
+
+# Create a new variable named "region" and separate observations of restaurants with different cuisine types into their respective global region
+
+DOHM1$region <- as.character(DOHM1$CUISINE.DESCRIPTION1)
+
+DOHM1$region[DOHM1$CUISINE.DESCRIPTION1 == "Afghan"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Armenian"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Egyptian"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Iranian"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Middle Eastern"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Turkish"] <- "MIDDLE EAST"
+
+DOHM1$region[DOHM1$CUISINE.DESCRIPTION1 == "African"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Ethiopian"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Moroccan"] <- "AFRICAN"
+
+DOHM1$region[DOHM1$CUISINE.DESCRIPTION1 == "American"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Cajun"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Creole"] <- "AMERICAN"
+
+DOHM1$region[DOHM1$CUISINE.DESCRIPTION1 == "Brazilian"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Chilean"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Latin (Cuban, Dominican, Puerto Rican, South & Central American)"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Peruvian"] <- "SOUTH AMERICAN"
+
+DOHM1$region[DOHM1$CUISINE.DESCRIPTION1 == "Afghan"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Czech"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Eastern European"|
+               DOHM1$CUISINE.DESCRIPTION1 == "English"|
+               DOHM1$CUISINE.DESCRIPTION1 == "French"|
+               DOHM1$CUISINE.DESCRIPTION1 == "German"| 
+               DOHM1$CUISINE.DESCRIPTION1 == "Greek"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Irish"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Italian"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Mediterranean"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Polish"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Portuguese"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Russian"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Scandinavian"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Spanish"] <- "EUROPEAN"
+
+DOHM1$region[DOHM1$CUISINE.DESCRIPTION1 == "Bangladeshi"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Indian"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Pakistani"] <- "SOUTH ASIAN"
+
+DOHM1$region[DOHM1$CUISINE.DESCRIPTION1 == "Chinese"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Japanese"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Korean"] <- "EAST ASIAN"
+
+DOHM1$region[DOHM1$CUISINE.DESCRIPTION1 == "Filipino"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Indonesian"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Thai"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Vietnamese/Cambodian/Malaysia"] <- "SOUTHEAST ASIAN"
+
+DOHM1$region[DOHM1$CUISINE.DESCRIPTION1 == "Caribbean"|
+               DOHM1$CUISINE.DESCRIPTION1 == "Mexican"] <- "CENTRAL AMERICA"
+
+DOHM1$region[DOHM1$CUISINE.DESCRIPTION1 == "Australian"] <- "AUSTRALIAN"
+
+# Factor the new variable "region" so that it can be inputted into a ggplot
+
+DOHM1$region <- as.factor(DOHM1$region) 
+
+# Print summary statistics for new variable "region"
+
+summary(DOHM1$region)
+
+# Print summary statistics for all variables within the dataset
+
+summary(DOHM1)
+```
+
+## Question 6
+```{r}
+# Given the prevalence of discrimination based on race, ethnicity, and culture within the education system, the workforce, and the healthcare system in our society, it is possible that the health inspection scores given to restaurants in New York are also subject to such bias and discrimination by the Department of Health and Mental Hygeine. Even though New York is often referred to as the melting pot of the United States due to its diversity, we still predict that restaurants and cafes serving American food will be given substantially lower (better) health inspection scores and restaurants and cafes serving food from other cultures to be given higher (worse) health inspection scores. We predict that restaurants serving an African cuisine will have the highest (worst) health inspection scores of any cuisine type due to the unfortunate racial bias and discrimination against Black people in the United States. We are inferring that the discrimination against minority groups that exists within the United States pervades the Department of Health and Mental Hygeine and influences their perception of health and sanitary conditons of restaurants serving food from different cultures. Due to the fact that New York is a melting pot, discrimination based on cuisine type may not exist since there is a more heterogenous population; however, we predict that more likely than not, there will be some form of discrimination observed. We are analyzing these variables to uncover any patterns and because we wish to bring to light any potential discrimination or bias within the way the Department of Health and Mental Hygeine scores different restaurants in New York in terms of health. 
+```
+
+## Question 7
+
+```{r}
+# Create a plot to show the difference in average health inspection scores by global region
+
+GLOBAL.SCORES <- DOHM1 %>%
+  select(region, SCORE1) %>%
+  group_by(region) %>%
+  summarise(AVG.SCORE=mean(SCORE1, na.rm=T))
+
+# Remove observations with a value of NA
+
+GLOBAL.SCORES  <- GLOBAL.SCORES[-c(11),]
+
+# Create a plot to show the difference in average health inspection scores by global region
+
+ggplot(GLOBAL.SCORES, aes(x=region, y=AVG.SCORE, fill=region)) +
+  xlab("Global Region of Cuisine") +
+  ylab("Average Health Inspection Score") +
+  labs(title = "Average Health Inspection Scores by Global Region of Cuisine") +
+  geom_col() +
+  theme(axis.text.x = element_text(angle=20, hjust=1))
+```
+
+## Question 8
+
+```{r}
+# The majority of average health inspection scores for different cuisines was around 21-24. However, the average health inspection score for restaurants serving an American cuisine was moderately lower (better) at about 19, which means that it was the cuisine that scored the best in terms of health and safety conditions. On the other end of the score spectrum, the average health inspection score for restaurants serving an African cuisine was substantially higher (worse) at about 27, which means that it was the cuisine that scored the worst in terms of health and safety conditions. Although the majority of other restaurants scored around the same on average, there was a huge discrepancy in health inspection scores between restaurants that serve an American cuisine and restaurants that serve an African cuisine. This observation matches our expectations because restaurants that serve an American cuisine received the lowest (best) average health inspection score compared to all other cuisines, which might indicate that health inspectors were more likely to rate restaurants serving an American cuisine better due to familiarity bias. Additionally, the fact that restaurants that serve an African cuisine received the highest (worst) average health inspection score compared to any other type of cuisine points to racial bias in health inspection ratings. Unfortunately, the substantially worse health inspection ratings of restaurants that serve an African cuisine could be another example of discrimination against Black people in America.
+```
+
+### PART B
+
+
+### Question 1
+
+```{r}
+# For our secondary categorical explanatory variable, we chose to examine the variable boro. We are interested in examining the boroughs in which these New York restaurants of different cuisines are located in order to determine whether the wealth and demographics of each individual borough within New York play a part in how the Department of Health and Mental Hygiene give out health inspection scores to New York restaurants and cafes. In our attempt to determine whether there is discrimination and/or bias present within the way health inspection scores are given to New York restaurants, we believe that looking at each individual borough within New York would be beneficial since each borough has its own personality, demographic makeup, and wealth. We are predicting that restaurants within boroughs of lower socioeconomic status, higher poverty rates, and a greater percentage of minority groups within the population will have higher (worse) scores, indicating less sanitary conditions, for health inspection scores on average if we are right in assuming that there might be bias present within the manner in which health inspection scores are given to restaurants.
+```
+
+### Question 2
+
+```{r}
+
+# Create a table that shows the average health inspection score for each cuisine type by borough
+
+REGION.BORO <- DOHM1 %>%
+  select(region, BORO, SCORE1) %>%
+  group_by(region, BORO) %>%
+  summarise(avg_score=mean(SCORE1, na.rm=T)) %>%
+  arrange(BORO) %>%
+  filter(is.na(region)==F)
+
+
+# Print the summary table 
+
+REGION.BORO
+```
+
+### Question 3
+
+```{r}
+# Create a plot that shows the average health inspection score for each cuisine type by borough
+
+ggplot(REGION.BORO, aes(x=region, y=avg_score, fill=region)) +
+  geom_col() +
+  facet_grid(~BORO)+
+  labs(x = "Global Region of Cuisine", y = "Average Health Inspection Score", title = "Average Health Inspection Scores for Different Cuisines By New York Boroughs")+
+  theme( axis.text.x=element_blank(),
+         axis.ticks.x = element_blank())
+```
+
+### Question 4
+
+```{r}
+# In the plot from Part A, only the variables score and cuisine description were plotted; however, this plot added the explanatory variable boro. In Part A, we determined that restaurants that serve an African cuisine were given the highest (worst) health inspection scores on average. Our new plot, which differentiates by New York boroughs, shows similar results with a few differences. Restaurants that serve an African cuisine generally scored worse than restaurants serving other cuisines, however, it was not consistent across all five boroughs and our results did not always correlate with borough income, poverty levels, and/or racial makeup of the population.
+# Restaurants that serve an African cuisine in Brooklyn, Manhattan, and Queens had the highest (worst) average health inspection scores out of all other cuisines; however, restaurants that serve a Southeast Asian cuisine and Central American cuisine had the highest (worst) scores in the Bronx and Staten Island, respectively. Although restaurants that serve an African cuisine did not score the highest (worst) on average in the Bronx, they were a very close second to restaurants that serve a Southeast Asian cuisine, which scored the highest (worst) on average. In Staten island, all restaurants had about the same average health inspection scores except for restaurants that serve a Central American and South American cuisine, which had the highest and second highest health inspection scores, respectively. 
+# The boroughs of Manhattan, Staten Island, and Queens are the wealthiest in terms of median household income ($82,459, $79,267, $64,987 respectively). They also have the lowest percentages of people in poverty with a 15.6%, 11.7%, 11.6% rate respectively and Manhattan and Staten Island have larger white populations (64.6% and 74.5%, respectively) compared to other boroughs (https://www.census.gov/quickfacts/fact/table/newyorkcitynewyork,bronxcountybronxboroughnewyork,kingscountybrooklynboroughnewyork,newyorkcountymanhattanboroughnewyork,queenscountyqueensboroughnewyork,richmondcountystatenislandboroughnewyork/PST045219). Due to these statistics, we predicted that there would be the largest discrepancy between the health inspection scores of restaurants that serve an American cuisine and restaurants serving other cuisines within these boroughs. 
+# After analyzing our plot, we observed that restaurants that serve an American cuisine had the lowest (best) health inspection scores and restaurants that serve an African cuisine had the highest (worst) health inspection scores in Manhattan and Queens, which supports our prediction. However, the same trends were not present in Staten Island where restaurants of all different cuisines had about the same average health inspection scores and restaurants that serve a Middle Eastern cuisine had the lowest (best) health inspection scores. Also, the difference in average health inspection score for restaurants that serve an American cuisine and restaurants that serve an African cuisine were extremely small with the latter being slightly higher (worse) in ratings of health and safety of food even though Staten Island is the second wealthiest borough within New York. This observation did not match our prediction. 
+# Something that we also did not predict was that the main discrepancy in Staten Island was actually between restaurants serving an American cuisine and restaurants that serve Central American and South American cuisines. However, this makes sense because the white population of Staten Island is the highest of all boroughs at 74.5% and the Hispanic/Latino population of Staten Island is the lowest of all boroughs at 18.6% (https://www.census.gov/quickfacts/fact/table/newyorkcitynewyork,bronxcountybronxboroughnewyork,kingscountybrooklynboroughnewyork,newyorkcountymanhattanboroughnewyork,queenscountyqueensboroughnewyork,richmondcountystatenislandboroughnewyork/PST045219). Even though this was not our expectation, after careful observation of the demographics, the results of the plot make sense. 
+```
+
+### Question 5
+
+```{r}
+# To improve our plot, we decided to remove any observations that had a value of “0” and “NA” that were assigned to the variable boro because they did not provide us with any useful information. We also decided to remove all other restaurant cuisine types other than the two with the lowest (best) average health inspection scores (restaurants that serve Middle Eastern and American cuisines) and the two highest (worst) average health inspection scores (restaurants that serve African and South Asian cuisines) to make it easier to see the differences in average health inspection scores for restaurants of different cuisine types across all the boroughs. We decided to do this because it was difficult to see trends when there were 11 different cuisine types for each borough, and we believe that our plot would be improved by focusing on only 4 cuisine types that typically have scores on opposite ends of the scale because it would clarify trends that we are observing as well as delete any extraneous observations/information.
+
+# Remove all "NA" and "0" entries for the variable "boro" and keep only the 2 best scored and 2 worst scored cuisine types
+
+DOHM2 <- subset(DOHM1, is.na(DOHM1$BORO)==F & DOHM1$BORO!=0 & (DOHM1$region=="AMERICAN"|
+                                                                 DOHM1$region=="MIDDLE EAST"|
+                                                                 DOHM1$region=="SOUTH ASIAN"|
+                                                                 DOHM1$region=="AFRICAN"))
+
+# Print the summary statistics of DOHM2
+
+summary(DOHM2)
+```
+
+### Question 6
+
+```{r}
+# Modify table to show the average health inspection score for each of the 4 chosen global cuisine type across all boroughs in New York
+
+REGION.BORO1 <- DOHM2 %>%
+  select(region, BORO, SCORE1) %>%
+  group_by(region, BORO) %>%
+  summarise(avg_score=mean(SCORE1, na.rm=T))
+
+# Print summary table 
+
+REGION.BORO1
+
+# Make a plot to show the average health inspection score for each of the 4 chosen global cuisine type across all boroughs in New York 
+
+ggplot(REGION.BORO1, aes(x=region, y=avg_score, fill=region))+
+  geom_col() +
+  facet_grid(~BORO) +
+  labs(x = "Global Region of Cuisine", y = "Average Health Inspection Score", title = "Average Health Inspection Scores by Cuisine Type Across New York Boroughs")+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x = element_blank())
+
+# After focusing on only the cuisine types African, American, Middle Eastern, and South Asian, we observed that restaurants that serve an African cuisine had the highest (worst) average health inspection scores for all five boroughs within New York (Bronx, Brooklyn, Manhattan, Queens, and Staten Island). Additionally, we also observed that restaurants that serve an American cuisine had the lowest (best) average health inspection score for all five boroughs within New York. In fact, restaurants that serve a South Asian cuisine scored second highest in terms of average health inspection scores for all five boroughs out of these four cuisine types and restaurants that serve a Middle Eastern cuisine scored third highest in terms of average health inspection scores out of these four cuisine types for all five boroughs. In summary, there was no difference in the pattern seen between the boroughs. From lowest (best) average health inspection score to highest (worst) average health inspection score, it consistently remained American, Middle Eastern, South Asian, and African cuisines for all five boroughs. These results are different from our previous plot because in our previous plot, restaurants that serve an African cuisine were only found to have the highest (worst) average health inspection score in Brooklyn, Manhattan, and Queens and restaurants that serve an American cuisine were only found to have the lowest (best) average health inspection score in Manhattan and Queens.
+```
+
+### Question 7
+
+```{r}
+# We decided to substitute our secondary explanatory variable, boro, with the categorical variable action. The variable action describes steps taken by the Department of Health and Mental Hygiene (DOHM) after a restaurant health inspection. We know that restaurants with health inspection scores of 28 or above for three inspections in a row are much more likely to get closed down, according to the New York City Department of Health and Mental Hygiene health inspection handbook (https://www1.nyc.gov/assets/doh/downloads/pdf/rii/blue-book.pdf).  Restaurants can still get closed down if they have health inspection scores of below 28 due to the fact that it is up to the discretion of the health inspector. We are interested in examining restaurants with health inspection scores below this threshold number of 28 to see if there is a pattern in the decisions of the Department of Health and Mental Hygiene to close down restaurants and whether these decisions vary based on the type of cuisine these restaurants serve. In other words, in probing the question of bias in the Department of Health and Mental Hygiene, we are interested in understanding whether restaurants with certain cuisine types are closed down disproportionately more when it is up to the health inspector of whether a restaurant needs to be shut down rather than by protocol. We predict that out of restaurants with similar scores, restaurants serving unfamiliar cuisines from different cultural backgrounds will be closed down more often than restaurants that serve American cuisines, which could potentially provide some credence to our theory about there being bias and/or discrimination in the way health inspection scores are given to restaurants.
+# We decided to substitute the variable boro with action instead of adding the variable action as a fourth variable because of what we observed in the graph that plotted the average health inspection scores, the global cuisine type, and the boroughs. There was no difference between the boroughs of New York in the way the average health inspection scores of the four different cuisines placed in connection to one another. In other words, the order from least to greatest (best to worst) in terms of health inspection ratings were restaurants that served an American cuisine, Middle Eastern Cuisine, South Asian cuisine, and African cuisine respectively for all five boroughs within New York. Therefore, since there is not much of a difference in the average health inspection scores between the boroughs, we decided to not utilize it and use the variable action instead to find out if health inspectors carry a bias within them. Adding a fourth variable would have also made the plot very cluttered and harder to analyze, which would not be worth it since there were no important differences observed between the different boroughs. 
+
+# Create a new ordinal variable by recoding the categories of SCORE1 into a range
+
+DOHM1$SCORE2 <- as.character(DOHM1$SCORE1)
+
+DOHM1$SCORE2[DOHM1$SCORE1 >= 0 & DOHM1$SCORE < 28] <- "0 - 27"
+DOHM1$SCORE2[DOHM1$SCORE1 >= 28] <- "28+"
+
+# Turn the variable action into a factor so it can be used in ggplot
+
+DOHM1$ACTION <- as.factor(DOHM1$ACTION)
+levels(DOHM1$ACTION)
+
+# Create a summary table showing the percent of restaurants closed down by cuisine type
+
+CUISINE.ACTION <- DOHM1 %>%
+  select(region, ACTION, SCORE2) %>%
+  group_by(region) %>%
+  summarise(Closed = sum(ACTION == "Establishment Closed by DOHMH.  Violations were cited in the following area(s) and those requiring immediate action were addressed."|
+                           ACTION == "Establishment re-closed by DOHMH")/n() * 100)
+
+
+CUISINE.ACTION <- CUISINE.ACTION[-c(11),]
+
+# Print summary table showing the percent of restaurants closed down by cuisine type 
+
+CUISINE.ACTION
+
+# Create a summary table showing the percent of restaurants closed down at the discretion of a health inspector by cuisine type
+
+CUISINE.ACTION1 <- DOHM1 %>%
+  select(region, ACTION, SCORE2) %>%
+  filter(SCORE2 == "0 - 27") %>%
+  group_by(region) %>%
+  summarise(Closed = sum(ACTION == "Establishment Closed by DOHMH.  Violations were cited in the following area(s) and those requiring immediate action were addressed."|
+                           ACTION == "Establishment re-closed by DOHMH")/n() * 100)
+
+CUISINE.ACTION1 <- CUISINE.ACTION1[-c(11),]
+
+# Print summary table showing the percent of restaurants closed down at the discretion of a health inspector by cuisine type
+
+CUISINE.ACTION1
+
+# Create a summary table showing the percent of restaurants closed that had health inspection scores greater than 28 by cuisine type
+
+CUISINE.ACTION2 <- DOHM1 %>%
+  select(region, ACTION, SCORE2) %>%
+  filter(SCORE2 == "28+") %>%
+  group_by(region) %>%
+  summarise(Closed = sum(ACTION == "Establishment Closed by DOHMH.  Violations were cited in the following area(s) and those requiring immediate action were addressed."|
+                           ACTION == "Establishment re-closed by DOHMH")/n() * 100)
+
+CUISINE.ACTION2 <- CUISINE.ACTION2[-c(11),]
+
+# Print summary table showing the percent of restaurants closed that had health inspection scores greater than 28 by cuisine type
+
+CUISINE.ACTION2
+
+
+# Create a summary table showing the average health inspection score for restaurants that scored less than 28 by the global region of the cuisine 
+
+CUISINE.ACTION3 <- DOHM1 %>%
+  select(region, ACTION, SCORE2, SCORE1) %>%
+  filter(SCORE2 == "0 - 27") %>%
+  group_by(region) %>%
+  summarise(Avg = mean(SCORE1, na.rm=T))
+
+CUISINE.ACTION3 <- CUISINE.ACTION3[-c(11),]
+
+# Print a summary table showing the average health inspection score for restaurants that scored less than 28 by the global region of the cuisine 
+
+CUISINE.ACTION3
+```
+
+### Question 8
+
+```{r}
+
+# Create a summary table showing the percent of restaurants of different cuisines with health inspection scores of 0-27 versus health inspection scores of 28+ that were closed down
+
+CUISINE.ACTION4 <- DOHM1 %>%
+  select(region, ACTION, SCORE2) %>%
+  group_by(region, SCORE2) %>%
+  summarise(Closed = sum(ACTION == "Establishment Closed by DOHMH.  Violations were cited in the following area(s) and those requiring immediate action were addressed."|
+                           ACTION == "Establishment re-closed by DOHMH")/n() * 100) %>%
+  filter(is.na(SCORE2)==F & SCORE2 != -1) %>%
+  arrange(SCORE2) %>%
+  filter(is.na(region)==F)
+
+# Print a summary table showing the percent of restaurants of different cuisines with health inspection scores of 0-27 versus health inspection scores of 28+ that were closed down
+
+CUISINE.ACTION4
+
+# Create a plot showing the percent of restaurants of different cuisines with health inspection scores of 0-27 versus health inspection scores of 28+ that were closed down
+
+ggplot(CUISINE.ACTION4, aes(x = region, y = Closed, fill = region))+
+  geom_col()+
+  labs(x = "Global Region of Cuisine", y = "Percent of Restaurants Closed", title = "Percent of Restaurants Closed by Cuisine Type with Scores 0-27 vs. 28+")+
+  theme(axis.text.x = element_text(angle=35, hjust=1)) +
+  facet_wrap(~SCORE2)
+
+# Create a plot that zooms into only the percent of restaurants of different cuisines that had a health inspection score of below 28 that closed down
+
+ggplot(CUISINE.ACTION1, aes(x = region, y = Closed, fill = region))+
+  geom_col()+
+  labs(x = "Global Region of Cuisine", y = "Percent of Restaurants Closed", title = "Percent of Restaurants With A Score Below 28 Closed Down by Cuisine Type")+
+  theme(axis.text.x = element_text(angle=20, hjust=1))
+
+# Create a plot that shows the average health inspection scores for restaurants of different cuisines that scored below a 28 for health inspection
+
+ggplot(CUISINE.ACTION3, aes(x = region, y = Avg, fill = region))+
+  geom_col()+
+  labs(x="Global Region of Cuisine", y="Average Health Inspection score", title="Average Health Inspection Scores for Restaurants Scoring Below a 28 by Cuisine") +
+  theme(axis.text.x = element_text(angle=20, hjust=1))
+
+
+
+# The plot we have created is different from previous plots because this is the first time we are analyzing the percentage of restaurants that were shut down. It is important to note that these restaurants had a health inspection score of below 28, which means that it was up to the health inspector to decide whether a restaurant should be closed down rather than it being a protocol. When analyzing the plot, it can be seen that the pattern tends to be the same as it has been all along. Restaurants with a health inspection score of under 28 that serve an American cuisine had the lowest percentage of restaurants closed down by the discretion of a health inspector. On the other hand, restaurants with a health inspection score of under 28 that serve an African cuisine had the highest percentage of restaurants closed down by the discretion of a health inspector. Now, this might be due to the fact that restaurants that have an average health inspection score of below 28 that serve an African cuisine have the highest average health inspection score out of all global regions at about 16 and that restaurants with an average health inspection score of below 28 that serve an American cuisine have the lowest average health inspection score out of all global regions at about 13, which can be seen through the plot that graphs the average health inspection scores for restaurants scoring below a 28 by cuisine type. However, there are other restaurant cuisines such as Central American, South American, South Asian, and Southeast Asian that have only slightly lower average health inspection scores (14, 15, 15, 15 respectively) than restaurants serving an African cuisine, yet the percentage of restaurants serving these cuisines had significantly lower percentage of shutdowns. 2.91% of restaurants serving an African cuisine were shut down; whereas, only 0.729%, 0.756%, 1.03%, 0.408% of restaurants serving a Central American, South American, South Asian, and Southeast Asian cuisine were shut down. This indicates that there is a possibility that there is a bias against restaurants that serve an African cuisine.
+```
+
+
+### Question 9
+
+```{r}
+# From our analysis in Part A, we see that restaurants that serve an African cuisine had the highest (worst) average health inspection score out of all global regions, followed by restaurants that serve a Southeast Asian cuisine. Furthermore, restaurants that serve an American cuisine had the lowest (best) average health inspection score by a large margin. All other cuisine types had average health inspection scores in between restaurants that serve an African cuisine and restaurants that serve an American cuisine. In this dataset, higher scores correspond to worse health ratings and lower scores correspond to better health ratings. Therefore, our analysis points to possible racial bias in restaurant inspection. However, it should be noted that a very small proportion of all restaurants inspected were restaurants that serve an African cuisine, so the differences may be due to random variation and the sample size might not be large enough to definitively make a claim of there being racial bias and/or discrimination in the way health inspection scores are given to New York restaurants. 
+# Our analysis in Part B provided further support for our prediction of there being racial bias/discrimination in the area of restaurant health inspection. When average health inspection scores for different cuisines were examined by borough, restaurants that serve an African cuisine were given a higher health inspection score than any other cuisine type in almost every borough within New York. Additionally, when analyzing closures of restaurants by cuisine and average health inspection score, restaurants that serve an African cuisine were closed more often even when the restaurant closure was at the discretion of a health inspector. Even though we do not have data on the specific violations of the restaurants and we cannot tell whether their closure was warranted, the difference in closure rates is substantial enough to suggest that racial bias within health inspectors might exist. Moreover, the average health inspection scores of restaurants with scores under 28 (the threshold above which closure is required) does not vary much with cuisine type, so it is surprising to find that restaurants serving an African cuisine with health inspection scores under 28 are closed so disproportionately. One may intuitively think that similar average health inspection scores across all cuisines would warrant similar closure percentages when closure is at the discretion of a health inspector, but the substantial differences in closure based on cuisine type seem to warrant further investigation into how inspectors are deciding to close restaurants and the role that racial bias plays in the health investigative process. 
+```
